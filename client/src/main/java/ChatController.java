@@ -40,7 +40,6 @@ public class ChatController implements Initializable {
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
 
-
             Thread readThread = new Thread(()->{
                 try{
                     while(true){
@@ -65,7 +64,6 @@ public class ChatController implements Initializable {
             e.printStackTrace();
         }
     }
-
 
 
     public void send(ActionEvent actionEvent) throws IOException {
