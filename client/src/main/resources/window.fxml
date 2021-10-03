@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="rootNode" alignment="CENTER" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+
+    <VBox fx:id="authentication" alignment="TOP_LEFT" managed="false" prefHeight="600" prefWidth="800" visible="false" style="-fx-background-image: url(backs.jpg);">
+        <Label fx:id="authLabel" alignment="TOP_LEFT" blendMode="SRC_ATOP" contentDisplay="TOP" maxWidth="Infinity" minHeight="22.0" prefHeight="22.0" prefWidth="1000.0" text="SIGN IN" textFill="WHITE" wrapText="true" HBox.hgrow="ALWAYS">
+            <font>
+                <Font name="Segoe UI Black" size="18.0" />
+            </font>
+        </Label>
+
+        <TextField fx:id="loginField" alignment="TOP_LEFT" maxWidth="213.0" prefHeight="25.0" prefWidth="213.0" promptText="login" HBox.hgrow="ALWAYS">
+            <VBox.margin>
+                <Insets bottom="15.0" />
+            </VBox.margin>
+         <font>
+            <Font name="Segoe UI Black" size="12.0" />
+         </font></TextField>
+        <PasswordField fx:id="passwordField" maxWidth="213.0" onAction="#tryToAuth" prefHeight="25.0" prefWidth="213.0" promptText="password">
+         <font>
+            <Font name="Segoe UI Black" size="12.0" />
+         </font></PasswordField>
+        <Button onAction="#tryToAuth" prefHeight="25.0" prefWidth="211.0" text="Enter">
+            <opaqueInsets>
+                <Insets />
+            </opaqueInsets>
+            <VBox.margin>
+                <Insets top="15.0" />
+            </VBox.margin>
+         <font>
+            <Font name="Segoe UI Black" size="12.0" />
+         </font>
+        </Button>
+            <VBox.margin>
+                <Insets bottom="15.0" />
+            </VBox.margin>
+    </VBox>
+
+    <HBox fx:id="mainWorkPanel" alignment="CENTER" managed="true" prefHeight="1500" prefWidth="2000" visible="true" style="-fx-background-image: url(backs.jpg);">
+        <VBox fx:id="clientSide" alignment="CENTER" >
+            <Label alignment="TOP_LEFT"  minHeight="30.0" prefHeight="30.0" prefWidth="173.0" text="Files on Computer" textFill="WHITE" >
+                <font>
+                    <Font name="Segoe UI Black" size="18.0" />
+                </font>
+            </Label>
+
+            <ListView fx:id="clientFileList" prefHeight="450" prefWidth="300"  />
+            <Button fx:id="removeClientFile" alignment="BOTTOM_LEFT" onAction="#removeFile" text="Remove" />
+
+
+
+        </VBox>
+
+        <VBox fx:id="buttonSide" alignment="CENTER" prefHeight="100" prefWidth="100.0">
+    <Label alignment="TOP_CENTER"  minHeight="30.0" prefHeight="30.0" prefWidth="173.0" />
+            <Button onAction="#sendOnServer" text="Send" prefHeight="112" prefWidth="100.0"/>
+            <Button prefHeight="112" prefWidth="100.0" visible="false"/>
+            <Button prefHeight="112" prefWidth="100.0" visible="false"/>
+            <Button onAction="#takeOutFromServer" text="Download" prefHeight="112" prefWidth="100.0" />
+            <Button visible="false" />
+
+
+        </VBox>
+
+        <VBox fx:id="serverSide" alignment="CENTER" >
+            <Label alignment="CENTER"  minHeight="30.0" prefHeight="30.0" prefWidth="228.0" text="Files on Server" textFill="WHITE" >
+                <font>
+                    <Font name="Segoe UI Black" size="18.0" />
+                </font>
+            </Label>
+
+            <ListView fx:id="serverFileList" prefHeight="450" prefWidth="300"  />
+            <Button fx:id="removeServerFile" alignment="BOTTOM_RIGHT" onAction="#removeFile" text="Remove"  />
+
+        </VBox>
+
+    </HBox>
+</VBox>
