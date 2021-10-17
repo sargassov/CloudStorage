@@ -11,5 +11,8 @@ public enum CommandName {
     DELETE_REQUEST,
     AUTH_PASSED,
     AUTH_FAILED,
-    EXIT_COMMAND
+    EXIT_COMMAND,
+    REG_REQUEST,
+    REG_PASSED,
+    REG_FAILED
 }

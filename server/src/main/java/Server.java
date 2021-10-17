@@ -17,6 +17,7 @@ public class Server {
     private static EventLoopGroup auth;
     private static EventLoopGroup worker;
     private static final int MAX_FILE_SIZE = 200 * 1024 * 1024;
+    private static DBStorage dbStorage;
 
     public Server() throws Exception {
 
@@ -33,7 +34,7 @@ public class Server {
                                     new ObjectDecoder(MAX_FILE_SIZE,
                                             ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new AuthHandler()
+                                    new AuthHandler(dbStorage)
                             );
                         }
                     })
@@ -43,7 +44,7 @@ public class Server {
             log.debug("Server started");
             System.out.println("Server started");
 
-            new DBStorage();
+            dbStorage = new DBStorage();
             future.channel().closeFuture().sync();
 
         } finally {
