@@ -1,15 +1,15 @@
-public class AuthMessage extends RandomMessage {
+public class AuthRequest extends Command {
     private String login;
     private String password;
     private String message;
 
-    public AuthMessage(){}
+    public AuthRequest(){}
 
-    public AuthMessage(String message) {
+    public AuthRequest(String message) {
         this.message = message;
     }
 
-    public AuthMessage(String login, String password) {
+    public AuthRequest(String login, String password) {
         this.login = login;
         this.password = password;
     }
@@ -24,5 +24,10 @@ public class AuthMessage extends RandomMessage {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public CommandType getCommandType() {
+        return CommandType.AUTH_REQUEST;
     }
 }

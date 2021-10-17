@@ -43,11 +43,19 @@
 
     <HBox fx:id="mainWorkPanel" alignment="CENTER" managed="true" prefHeight="1500" prefWidth="2000" visible="true" style="-fx-background-image: url(backs.jpg);">
         <VBox fx:id="clientSide" alignment="CENTER" >
+
             <Label alignment="TOP_LEFT"  minHeight="30.0" prefHeight="30.0" prefWidth="173.0" text="Files on Computer" textFill="WHITE" >
                 <font>
                     <Font name="Segoe UI Black" size="18.0" />
                 </font>
             </Label>
+
+
+            <HBox>
+                <TextField fx:id="clentPath" prefWidth="270.0" />
+                <Button fx:id="pathOutClient" onAction="#pathOutClientPressing" alignment="TOP_RIGHT" prefWidth="30.0" text="***"/>
+            </HBox>
+
 
             <ListView fx:id="clientFileList" prefHeight="450" prefWidth="300"  />
             <Button fx:id="removeClientFile" alignment="BOTTOM_LEFT" onAction="#removeFile" text="Remove" />
@@ -62,7 +70,7 @@
             <Button prefHeight="112" prefWidth="100.0" visible="false"/>
             <Button prefHeight="112" prefWidth="100.0" visible="false"/>
             <Button onAction="#takeOutFromServer" text="Download" prefHeight="112" prefWidth="100.0" />
-            <Button visible="false" />
+
 
 
         </VBox>
@@ -73,6 +81,11 @@
                     <Font name="Segoe UI Black" size="18.0" />
                 </font>
             </Label>
+
+            <HBox>
+                <TextField fx:id="serverPath" prefWidth="270"/>
+                <Button fx:id="pathOutServer" onAction="#pathOutServerPressing" prefWidth="30.0" text="***"/>
+            </HBox>
 
             <ListView fx:id="serverFileList" prefHeight="450" prefWidth="300"  />
             <Button fx:id="removeServerFile" alignment="BOTTOM_RIGHT" onAction="#removeFile" text="Remove"  />

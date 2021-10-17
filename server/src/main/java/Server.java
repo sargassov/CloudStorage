@@ -33,7 +33,7 @@ public class Server {
                                     new ObjectDecoder(MAX_FILE_SIZE,
                                             ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new FileHandler()
+                                    new FileMessageHandler("user")
                             );
                         }
                     })

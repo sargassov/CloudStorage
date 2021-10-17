@@ -1,4 +1,4 @@
-public class DeleteRequest extends RandomMessage {
+public class DeleteRequest extends Command {
     private String filename;
 
     public String getFilename() {
@@ -9,4 +9,8 @@ public class DeleteRequest extends RandomMessage {
         this.filename = filename;
     }
 
+    @Override
+    public CommandType getCommandType() {
+        return CommandType.DELETE_REQUEST;
+    }
 }
