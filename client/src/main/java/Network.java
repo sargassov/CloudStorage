@@ -10,6 +10,14 @@ public class Network {
     private static ObjectDecoderInputStream in;
     private static int MAX_FILE_SIZE = 209715200;
 
+    public static ObjectDecoderInputStream getIn() {
+        return in;
+    }
+
+    public static ObjectEncoderOutputStream getOut() {
+        return out;
+    }
+
     static void start() {
         try {
             socket = new Socket("localhost", 8189);
@@ -39,7 +47,7 @@ public class Network {
         }
     }
 
-    static boolean sendMsg(RandomMessage msg) {
+    static boolean sendMsg(Command msg) {
         try {
             out.writeObject(msg);
             return true;
@@ -49,8 +57,8 @@ public class Network {
         return false;
     }
 
-    static RandomMessage readObject() throws ClassNotFoundException, IOException {
+    static Command readObject() throws ClassNotFoundException, IOException {
         Object obj = in.readObject();
-        return (RandomMessage) obj;
+        return (Command) obj;
     }
 }

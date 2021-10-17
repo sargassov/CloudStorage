@@ -1,5 +1,11 @@
-public class Command {
+import java.io.Serializable;
 
-    public static String AUTH_OK = "/authOk";
-    public static String NULL_USER_ID = "/null_userId";
+public class Command implements Serializable {
+
+    private CommandType commandType;
+
+    public CommandType getCommandType() {
+        return commandType;
+    }
+
 }

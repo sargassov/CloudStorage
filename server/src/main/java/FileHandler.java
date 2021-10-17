@@ -14,15 +14,15 @@ public class FileHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
             System.out.println(message.getClass());
-            if (message instanceof AuthMessage) {
-                AuthMessage authMessage = (AuthMessage) message;
-                String userId = DBStorage.getIdByLoginAndPass(authMessage.getLogin(), authMessage.getPassword());
+            if (message instanceof AuthRequest) {
+                AuthRequest authRequest = (AuthRequest) message;
+                String userId = DBStorage.getIdByLoginAndPass(authRequest.getLogin(), authRequest.getPassword());
                 if (userId != null) {
                     authPassed = true;
-                    ctx.pipeline().addLast(new ClientHandler(userId));
-                    ctx.writeAndFlush(new AuthMessage(Command.AUTH_OK));
+                    ctx.pipeline().addLast(new FileMessageHandler(userId));
+                    ctx.writeAndFlush(new AuthRequest(Reply.AUTH_OK));
                 } else {
-                    ctx.writeAndFlush(new AuthMessage(Command.NULL_USER_ID));
+                    ctx.writeAndFlush(new AuthRequest(Reply.NULL_USER_ID));
                 }
             }
         } finally {
