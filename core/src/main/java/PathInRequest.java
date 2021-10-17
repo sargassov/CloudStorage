@@ -11,7 +11,7 @@ public class PathInRequest extends Command {
     }
 
     @Override
-    public CommandType getCommandType() {
-        return CommandType.PATH_IN_REQUEST;
+    public CommandName getCommandList() {
+        return CommandName.PATH_IN_REQUEST;
     }
 }

@@ -1,43 +1,82 @@
 import java.sql.*;
+import java.util.List;
 
-public class DBStorage {
+public class DBStorage{
 
-    private static Connection connection;
-    private static String SQL_DRIVER = "org.sqlite.JDBC";
-    private static String DB_DST = "jdbc:sqlite:Cloud_storage_Database.db";
-    private static String SQL_LOGIN_PASSWORD_REQUEST =
-            "SELECT id FROM main where login = '%s' and password = '%s'";
-    private static Statement statement;
-    private static ResultSet resultSet;
+    public static Connection connection;
+    public static Statement statement;
+    public static ResultSet resultSet;
+    private static final String CREATE_USER_QWE = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('qwe', 'qwe', 'qwe')";
+    private static final String CREATE_USER_ASD = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('asd', 'asd', 'asd')";
+    private static final String CREATE_USER_ZXC = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('zxc', 'zxc', 'zxc')";
+    private static final String CREATE_TABLE_EXECUTE = "CREATE TABLE if not exists 'users'" +
+            "('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'nickname' text, 'login' text, 'password' text);";
+    private List<UserData> users;
 
-    static void connect() throws SQLException {
-        try {
+    private class UserData {
+        String login;
+        String password;
+        String nickname;
 
-            Class.forName(SQL_DRIVER);
-            connection = DriverManager.getConnection(DB_DST);
-            statement = connection.createStatement();
-
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        public UserData(String login, String password, String nickname) {
+            this.login = login;
+            this.password = password;
+            this.nickname = nickname;
         }
     }
 
-    static void disconnect() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public DBStorage() throws SQLException, ClassNotFoundException {
+        setConnection();
+        createdb();
+        writedb();
     }
 
-    static String getIdByLoginAndPass(String login, String pass) throws SQLException {
 
-        String sql = String.format(SQL_LOGIN_PASSWORD_REQUEST, login, pass);
-        resultSet = statement.executeQuery(sql);
-
-        if (resultSet.next()) {
-            return resultSet.getString(1);
+    public static String getNicknameByLoginAndPassword(String login, String password) throws SQLException {
+        resultSet = statement.executeQuery("SELECT * FROM users");
+        String dbNickname;
+        while(resultSet.next()){
+            if (resultSet.getString("login").equals(login) &&
+                    resultSet.getString("password").equals(password)) {
+                return dbNickname = resultSet.getString("nickname");
+            }
         }
+
         return null;
+    }
+
+    public boolean registration(String login, String password, String nickname) throws SQLException {
+        resultSet = statement.executeQuery("SELECT * FROM users");
+        while(resultSet.next()){
+            if (resultSet.getString("login").equals(login) ||
+                    resultSet.getString("nickname").equals(nickname)) { return false;
+            }
+            statement.execute("INSERT INTO 'users' ('nickname', 'login', 'password') VALUES ('" + nickname + "', '"
+                    + login + "', '" + password + "')");
+        }
+
+        return true;
+    }
+
+    public static void setConnection() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:Cloud_storage_Database.db:authdb");
+    }
+
+    public static void createdb() throws SQLException {
+        statement = connection.createStatement();
+        statement.execute(CREATE_TABLE_EXECUTE);
+    }
+
+    public static void writedb() throws SQLException {
+        statement.execute(CREATE_USER_QWE);
+        statement.execute(CREATE_USER_ASD);
+        statement.execute(CREATE_USER_ZXC);
+    }
+
+    public static void closedb() throws SQLException {
+        resultSet.close();
+        statement.close();
+        connection.close();
     }
 }

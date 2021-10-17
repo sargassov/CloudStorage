@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,7 @@ public class ListResponce extends Command {
     }
 
     @Override
-    public CommandType getCommandType() {
-        return CommandType.LIST_RESPONCE;
+    public CommandName getCommandList() {
+        return CommandName.LIST_RESPONCE;
     }
 }

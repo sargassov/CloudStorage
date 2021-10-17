@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -30,14 +31,16 @@ public class Controller implements Initializable {
     @FXML TextField loginField;
     @FXML PasswordField passwordField;
     @FXML Label authLabel;
-    private static final String ROOT = "client";
+    private static final String ROOT = "client/clientFiles";
     private Path currentClientDir = Paths.get(ROOT).toAbsolutePath();
-    private boolean isAuthorized = true;
+    private boolean isAuthorized = false;
+    private Stage stage;
 
     @SneakyThrows
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setAuthorized(true);
+
+        setAuthorized(false);
         Network.start();
         refreshClientView();
         addNavigationListeners();
@@ -47,22 +50,29 @@ public class Controller implements Initializable {
 
                 while (!isAuthorized) {
                     Command command = (Command) Network.getIn().readObject();
-                    if (command.getCommandType().equals(CommandType.AUTH_REQUEST)) {
-                        AuthRequest authRequest = (AuthRequest) command;
-                        if (Reply.AUTH_OK.equals(authRequest.getMessage())) {
-                            setAuthorized(true);
-                            break;
-                        }
-                        if (Reply.NULL_USER_ID.equals(authRequest.getMessage())) {
-                            Platform.runLater(() -> authLabel.setText("WRONG LOGIN OR PASS"));
-                        }
+                    System.out.println(command.getCommandList());
+                    if(command.getCommandList().equals(CommandName.EXIT_COMMAND)){
+                        System.out.println("server disconnected us");
+                        throw new RuntimeException("server disconnected us");
+                    }
+
+                    if(command.getCommandList().equals(CommandName.AUTH_PASSED)){
+                        setAuthorized(true);
+                        Network.sendMsg(new PathInRequest(""));
+                        Network.sendMsg(new ListRequest());
+                        break;
+                    }
+
+                    if(command.getCommandList().equals(CommandName.AUTH_FAILED)){
+                        Platform.runLater(() -> authLabel.setText("WRONG LOGIN OR PASS"));
+                        System.out.println("ALL FUCK");
                     }
                 }
 
                 Network.sendMsg(new ListResponce());
 
                 Thread t = new Thread(()->{ // отдельный поток для отображения изменений директории клиента
-                    while (true){           // раз в секунду
+                    while (true){
                         try {
                             refreshClientView();
                         } catch (IOException e) {
@@ -70,7 +80,7 @@ public class Controller implements Initializable {
                         }
 
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(3000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -82,21 +92,23 @@ public class Controller implements Initializable {
                 while (true){
                     Command command = (Command) Network.getIn().readObject();
 
-                    if(command.getCommandType().equals(CommandType.LIST_RESPONCE)){
+
+                    if(command.getCommandList().equals(CommandName.LIST_RESPONCE)){
                         ListResponce listResponce = (ListResponce) command;
                         ArrayList<String> names = listResponce.getServerFileList();
                         refreshServerView(names);
                     }
 
-                    if(command.getCommandType().equals(CommandType.PATH_RESPONCE)){
+                    if(command.getCommandList().equals(CommandName.PATH_RESPONCE)){
                         PathResponce pathResponce = (PathResponce) command;
                         String path = pathResponce.getPath().substring("server/serverFiles/".length());
+                        System.out.println(path);
                         Platform.runLater(()->{
                             serverPath.setText(path);
                         });
                     }
 
-                    if(command.getCommandType().equals(CommandType.FILE_MESSAGE)) {
+                    if(command.getCommandList().equals(CommandName.FILE_MESSAGE)) {
                         FileMessage fileMessage = (FileMessage) command;
                         Files.write(currentClientDir.resolve(fileMessage.getFilename()), fileMessage.getData());
                         refreshClientView();
@@ -105,45 +117,24 @@ public class Controller implements Initializable {
             } catch (Exception e){
                 e.printStackTrace();
             }
-//            try {
-//                while (true) {
-//                    Command command = Network.readObject();
-//                    if (command instanceof AuthMessage) {
-//                        AuthMessage authMessage = (AuthMessage) command;
-//                        if (Reply.AUTH_OK.equals(authMessage.getMessage())) {
-//                            setAuthorized(true);
-//                            break;
-//                        }
-//                        if (Reply.NULL_USER_ID.equals(authMessage.getMessage())) {
-//                            Platform.runLater(() -> authLabel.setText("WRONG LOGIN OR PASS"));
-//                        }
-//                    }
-//                }
-//
-//                Network.sendMsg(new ListResponce());
-//
-//                while (true) {
-//                    Command command = Network.readObject();
-//                    if (command instanceof FileMessage) {
-//                        FileMessage fileMessage = (FileMessage) command;
-//                        Files.write(Paths.get(ROOT + fileMessage.getFilename()),
-//                                fileMessage.getData(), StandardOpenOption.CREATE); //StandardOpenOption.CREATE всегда оздаёт/перезаписывает новые объекты
-//                        refreshClientView();
-//                    }
-//                    if (command instanceof ListResponce) {
-//                        ListResponce refreshServerMsg = (ListResponce) command;
-//                        renewServerFiles(refreshServerMsg.getServerFileList());
-//                    }
-//                }
-//            } catch (ClassNotFoundException | IOException ex) {
-//                ex.printStackTrace();
-//            } finally {
-//                Network.stop();
-//            }
         });
         thread.setDaemon(true);
         thread.start();
         refreshClientView();
+
+        Platform.runLater(() -> {
+            stage = (Stage) serverPath.getScene().getWindow();
+            stage.setOnCloseRequest(event -> {
+                System.out.println("bye");
+                if (Network.getSocket() != null && !Network.getSocket().isClosed()) {
+                    try {
+                        Network.getOut().writeObject(new ExitCommand());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        });
     }
 
     private void addNavigationListeners() {
@@ -178,24 +169,28 @@ public class Controller implements Initializable {
     }
 
     private void setAuthorized(boolean isAuthorized) {
-        if (!isAuthorized) {
-            authentication.setVisible(true);
-            authentication.setManaged(true);
-            mainWorkPanel.setVisible(false);
-            mainWorkPanel.setManaged(false);
-        } else {
-            authentication.setVisible(false);
-            authentication.setManaged(false);
-            mainWorkPanel.setVisible(true);
-            mainWorkPanel.setManaged(true);
-            this.isAuthorized = true;
-        }
+            if (!isAuthorized) {
+                authentication.setVisible(true);
+                authentication.setManaged(true);
+                mainWorkPanel.setVisible(false);
+                mainWorkPanel.setManaged(false);
+            } else {
+                authentication.setVisible(false);
+                authentication.setManaged(false);
+                mainWorkPanel.setVisible(true);
+                mainWorkPanel.setManaged(true);
+                this.isAuthorized = true;
+            }
+
+
     }
 
     public void tryToAuth() {
-        Network.sendMsg(new AuthRequest(loginField.getText(), passwordField.getText()));
+
+        Network.sendMsg(new AuthRequest(loginField.getText().trim(), passwordField.getText().trim()));
         loginField.clear();
         passwordField.clear();
+
     }
 
     public void takeOutFromServer(ActionEvent actionEvent) {
@@ -210,11 +205,6 @@ public class Controller implements Initializable {
         Network.getOut().flush();
         Network.getOut().writeObject(new ListRequest());
         Network.getOut().flush();
-//        try {
-//            Network.sendMsg(new FileMessage(Paths.get(currentClientDir + clientFileList.getSelectionModel().getSelectedItem())));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     public void removeFile(ActionEvent actionEvent) {
