@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/window.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("window.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Cloud Storage");
         Scene scene = new Scene(root);

@@ -4,6 +4,11 @@ import io.netty.util.ReferenceCountUtil;
 
 public class AuthHandler extends SimpleChannelInboundHandler<Command> {
     private boolean authPassed = false;
+    private DBStorage dbStorage;
+
+    public AuthHandler(DBStorage dbStorage){
+        this.dbStorage = dbStorage;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws Exception {
@@ -33,11 +38,29 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
                 }
             }
 
+            if (command.getCommandList().equals(CommandName.REG_REQUEST)) {
+                RegRequest regRequest = (RegRequest) command;
+                dbStorage.setAuthHandler(this);
+
+                System.out.println("fwsredthfgyujtdrhgeswfatghj");
+                authPassed = dbStorage.registration(regRequest.getLogin(), regRequest.getPassword(),
+                        regRequest.getNickName());
+                if (authPassed) {
+                    ctx.pipeline().addLast(new ApplicationHandler(regRequest.getNickName()));
+                    ctx.writeAndFlush(new RegPassed());
+                } else {
+                    ctx.writeAndFlush(new RegFailed());
+                }
+            }
+
         }finally {
             ReferenceCountUtil.release(command);
         }
     }
 
+    public void setAuthPassed(boolean authPassed) {
+        this.authPassed = authPassed;
+    }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

@@ -11,7 +11,7 @@ public class DBStorage{
     private static final String CREATE_USER_ZXC = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('zxc', 'zxc', 'zxc')";
     private static final String CREATE_TABLE_EXECUTE = "CREATE TABLE if not exists 'users'" +
             "('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'nickname' text, 'login' text, 'password' text);";
-    private List<UserData> users;
+    private AuthHandler authHandler;
 
     private class UserData {
         String login;
@@ -78,5 +78,9 @@ public class DBStorage{
         resultSet.close();
         statement.close();
         connection.close();
+    }
+
+    public void setAuthHandler(AuthHandler authHandler) {
+        this.authHandler = authHandler;
     }
 }

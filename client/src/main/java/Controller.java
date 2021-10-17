@@ -1,11 +1,16 @@
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -23,6 +28,10 @@ public class Controller implements Initializable {
     @FXML public TextField clentPath;
     @FXML public Button pathOutClient;
     @FXML public Button pathOutServer;
+    @FXML public VBox registration;
+    @FXML public Label regLabel;
+    @FXML public PasswordField regPasswordField;
+    @FXML public TextField regLoginField;
     @FXML Button removeClientFile, removeServerFile;
     @FXML ListView<String> clientFileList;
     @FXML ListView<String> serverFileList;
@@ -35,6 +44,8 @@ public class Controller implements Initializable {
     private Path currentClientDir = Paths.get(ROOT).toAbsolutePath();
     private boolean isAuthorized = false;
     private Stage stage;
+    private Stage regStage;
+    private RegController regController;
 
     @SneakyThrows
     @Override
@@ -66,6 +77,14 @@ public class Controller implements Initializable {
                     if(command.getCommandList().equals(CommandName.AUTH_FAILED)){
                         Platform.runLater(() -> authLabel.setText("WRONG LOGIN OR PASS"));
                         System.out.println("ALL FUCK");
+                    }
+
+                    if (command.getCommandList().equals(CommandName.REG_PASSED)) {
+                        regController.resultTryToReg(true);
+                    }
+
+                    if (command.getCommandList().equals(CommandName.REG_FAILED)) {
+                        regController.resultTryToReg(false);
                     }
                 }
 
@@ -252,5 +271,39 @@ public class Controller implements Initializable {
 
     public void pathOutServerPressing(ActionEvent actionEvent) {
         Network.sendMsg(new PathUpRequest());
+    }
+
+    public void clickRegButton(ActionEvent actionEvent) {
+        if (regStage == null) {
+            createRegWindow();
+        }
+        regStage.show();
+    }
+
+    private void createRegWindow() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("reg.fxml"));
+            Parent root = fxmlLoader.load();
+
+            regController = fxmlLoader.getController();
+            regController.setController(this);
+
+            regStage = new Stage();
+            regStage.setTitle("Registration mode");
+            regStage.setScene(new Scene(root, 600, 400));
+
+            regStage.initModality(Modality.APPLICATION_MODAL);
+            regStage.initStyle(StageStyle.UTILITY);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void tryToReg(String login, String password, String nickname) {
+//        if (Network.getSocket() == null || Network.getSocket().isClosed()) {
+//            Network.start();
+//        }
+
+        Network.sendMsg(new RegRequest(login, password, nickname));
     }
 }
