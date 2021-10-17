@@ -7,7 +7,7 @@
 
 <VBox fx:id="rootNode" alignment="CENTER" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
 
-    <VBox fx:id="authentication" alignment="TOP_LEFT" managed="false" prefHeight="600" prefWidth="800" visible="false" style="-fx-background-image: url(backs.jpg);">
+    <VBox fx:id="authentication" alignment="TOP_LEFT" managed="true" visible="true" prefHeight="600" prefWidth="800"  style="-fx-background-image: url(backs.jpg);">
         <Label fx:id="authLabel" alignment="TOP_LEFT" blendMode="SRC_ATOP" contentDisplay="TOP" maxWidth="Infinity" minHeight="22.0" prefHeight="22.0" prefWidth="1000.0" text="SIGN IN" textFill="WHITE" wrapText="true" HBox.hgrow="ALWAYS">
             <font>
                 <Font name="Segoe UI Black" size="18.0" />
@@ -41,7 +41,7 @@
             </VBox.margin>
     </VBox>
 
-    <HBox fx:id="mainWorkPanel" alignment="CENTER" managed="true" prefHeight="1500" prefWidth="2000" visible="true" style="-fx-background-image: url(backs.jpg);">
+    <HBox fx:id="mainWorkPanel" alignment="CENTER" managed="false" visible="false" prefHeight="1500" prefWidth="2000"  style="-fx-background-image: url(backs.jpg);">
         <VBox fx:id="clientSide" alignment="CENTER" >
 
             <Label alignment="TOP_LEFT"  minHeight="30.0" prefHeight="30.0" prefWidth="173.0" text="Files on Computer" textFill="WHITE" >

@@ -33,7 +33,7 @@ public class Server {
                                     new ObjectDecoder(MAX_FILE_SIZE,
                                             ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new FileMessageHandler("user")
+                                    new AuthHandler()
                             );
                         }
                     })
@@ -43,14 +43,14 @@ public class Server {
             log.debug("Server started");
             System.out.println("Server started");
 
-            DBStorage.connect();
+            new DBStorage();
             future.channel().closeFuture().sync();
 
         } finally {
 
             auth.shutdownGracefully();
             worker.shutdownGracefully();
-            DBStorage.disconnect();
+            DBStorage.closedb();
 
         }
     }

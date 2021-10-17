@@ -10,7 +10,7 @@ public class DeleteRequest extends Command {
     }
 
     @Override
-    public CommandType getCommandType() {
-        return CommandType.DELETE_REQUEST;
+    public CommandName getCommandList() {
+        return CommandName.DELETE_REQUEST;
     }
 }

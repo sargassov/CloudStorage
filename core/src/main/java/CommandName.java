@@ -1,11 +1,15 @@
-public enum CommandType {
+public enum CommandName {
     FILE_MESSAGE,
     FILE_REQUEST,
     LIST_REQUEST,
     LIST_RESPONCE,
     PATH_IN_REQUEST,
     PATH_UP_REQUEST,
+    PATH_REQUEST,
     PATH_RESPONCE,
     AUTH_REQUEST,
-    DELETE_REQUEST
+    DELETE_REQUEST,
+    AUTH_PASSED,
+    AUTH_FAILED,
+    EXIT_COMMAND
 }

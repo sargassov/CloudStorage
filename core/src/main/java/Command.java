@@ -2,10 +2,10 @@ import java.io.Serializable;
 
 public class Command implements Serializable {
 
-    private CommandType commandType;
+    private CommandName commandName;
 
-    public CommandType getCommandType() {
-        return commandType;
+    public CommandName getCommandList() {
+        return commandName;
     }
 
 }

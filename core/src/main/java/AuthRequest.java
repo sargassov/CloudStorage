@@ -14,9 +14,7 @@ public class AuthRequest extends Command {
         this.password = password;
     }
 
-    public String getLogin() {
-        return login;
-    }
+    public String getLogin() { return login; }
 
     public String getMessage() {
         return message;
@@ -27,7 +25,7 @@ public class AuthRequest extends Command {
     }
 
     @Override
-    public CommandType getCommandType() {
-        return CommandType.AUTH_REQUEST;
+    public CommandName getCommandList() {
+        return CommandName.AUTH_REQUEST;
     }
 }

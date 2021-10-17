@@ -29,6 +29,10 @@ public class Network {
         }
     }
 
+    public static Socket getSocket() {
+        return socket;
+    }
+
     static void stop() {
         try {
             out.close();
