@@ -4,7 +4,7 @@ import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class AuthHandler extends SimpleChannelInboundHandler<Command> {
+public class AuthHandler extends SimpleChannelInboundHandler<Command> { //обработчик регистрационных команд с клиента
     private boolean authPassed = false;
     private boolean regPassed = false;
     private DBStorage dbStorage;
@@ -16,7 +16,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws Exception {
 
-        try{
+        try{ //регистраяи пройдена
             if(authPassed){
                 ctx.fireChannelRead(command);
                 return;
@@ -29,19 +29,19 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
                 String userId = DBStorage.userIdVerify(authRequest.getLogin().trim(),
                         authRequest.getPassword().trim());
 
-                if(userId != null){
+                if(userId != null){ //если пользователь прошел регистраицю создаем следующий обработчик и передаем логин пользователя
                     log.info("Auth was passed by " + userId);
                     authPassed = true;
                     ctx.pipeline().addLast(new ApplicationHandler(userId));
                     ctx.writeAndFlush(new AuthPassed());
                 }
-                else {
+                else { //провелена регистрация. Остаем в этом обработчике
                     log.error("auth failed");
                     ctx.writeAndFlush(new AuthFailed());
                 }
             }
 
-            if (command.getCommandName().equals(CommandName.REG_REQUEST)) {
+            if (command.getCommandName().equals(CommandName.REG_REQUEST)) { //обработ казапроса не регистрацию
                 RegRequest regRequest = (RegRequest) command;
 
                 regPassed = dbStorage.registration(regRequest.getLogin(), regRequest.getPassword());
@@ -59,7 +59,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { //возникновение исключительной ситуации
         cause.printStackTrace();
         ctx.close();
     }

@@ -12,11 +12,11 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Server {
+public class Server { //основной серверный класс
 
     private static EventLoopGroup auth;
     private static EventLoopGroup worker;
-    private static final int MAX_FILE_SIZE = 200 * 1024 * 1024;
+    private static final int MAX_FILE_SIZE = 200 * 1024 * 1024; //максимальный размер принимаемого файла 200 мб
     private static DBStorage dbStorage;
 
     public Server() throws Exception {
@@ -43,10 +43,10 @@ public class Server {
 
             log.debug("Server started");
 
-            dbStorage = new DBStorage();
+            dbStorage = new DBStorage(); //активация базы данных
             future.channel().closeFuture().sync();
 
-        } finally {
+        } finally { //закрытие пототок и базы данных
 
             auth.shutdownGracefully();
             worker.shutdownGracefully();

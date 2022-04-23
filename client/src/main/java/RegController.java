@@ -5,8 +5,10 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import lombok.extern.log4j.Log4j;
 
-public class RegController {
+@Log4j
+public class RegController { //контроллер регистрации. Обработка запросов на регистрацию
 
 
     @FXML public TextField loginField;
@@ -16,6 +18,7 @@ public class RegController {
     private Controller controller;
 
     public void tryToReg(ActionEvent actionEvent) {
+        log.info("RegController.tryToReg");
         String login = loginField.getText().trim();
         String password = passwordField.getText().trim();
 
@@ -32,7 +35,8 @@ public class RegController {
         controller.tryToReg(login, password);
     }
 
-    public void resultTryToReg(boolean flag) {
+    public void resultTryToReg(boolean flag) { //результирующий метод регистрации
+        log.info("RegController.resultTryReg");
         if (flag) {
             textArea.appendText("REGISTRATION PASSED\n");
             loginField.clear();
