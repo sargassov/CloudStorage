@@ -12,6 +12,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+@Log4j
 public class Controller implements Initializable {
     @FXML public TextField serverPath;
     @FXML public TextField clentPath;
@@ -57,42 +59,46 @@ public class Controller implements Initializable {
         addNavigationListeners();
 
         Thread thread = new Thread(() -> {
-            try{
-
+            try {
+//цикл рагистрации
                 while (!isAuthorized) {
                     Command command = (Command) Network.getIn().readObject();
-                    System.out.println(command.getCommandList());
-                    if(command.getCommandList().equals(CommandName.EXIT_COMMAND)){
+                    log.debug(command.getCommandName());
+                    if(command.getCommandName().equals(CommandName.EXIT_COMMAND)){
                         System.out.println("server disconnected us");
                         throw new RuntimeException("server disconnected us");
                     }
 
-                    if(command.getCommandList().equals(CommandName.AUTH_PASSED)){
+                    if(command.getCommandName().equals(CommandName.AUTH_PASSED)){
+                        System.out.println("AUTH PASSED");
                         setAuthorized(true);
-                        Network.sendMsg(new PathInRequest(""));
-                        Network.sendMsg(new ListRequest());
+                        Network.writeObject(new PathInRequest(""));
+                        Network.writeObject(new ListRequest());
                         break;
                     }
 
-                    if(command.getCommandList().equals(CommandName.AUTH_FAILED)){
+                    if(command.getCommandName().equals(CommandName.AUTH_FAILED)){
+                        System.out.println("AUTH FAILED");
                         Platform.runLater(() -> authLabel.setText("WRONG LOGIN OR PASS"));
-                        System.out.println("ALL FUCK");
                     }
 
-                    if (command.getCommandList().equals(CommandName.REG_PASSED)) {
+                    if (command.getCommandName().equals(CommandName.REG_PASSED)) {
+                        System.out.println("REG PASSED");
                         regController.resultTryToReg(true);
                     }
 
-                    if (command.getCommandList().equals(CommandName.REG_FAILED)) {
+                    if (command.getCommandName().equals(CommandName.REG_FAILED)) {
+                        System.out.println("REG FAILED");
                         regController.resultTryToReg(false);
                     }
                 }
 
-                Network.sendMsg(new ListResponce());
+                Network.writeObject(new ListResponce());
 
                 Thread t = new Thread(()->{ // отдельный поток для отображения изменений директории клиента
                     while (true){
                         try {
+                            log.info("REFRESH CLIENT VIEW");
                             refreshClientView();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -107,18 +113,19 @@ public class Controller implements Initializable {
                 });
                 t.setDaemon(true);
                 t.start();
-
+//цикл работы
                 while (true){
                     Command command = (Command) Network.getIn().readObject();
 
-
-                    if(command.getCommandList().equals(CommandName.LIST_RESPONCE)){
+                    if(command.getCommandName().equals(CommandName.LIST_RESPONCE)){
+                        log.info("WORK LIST RESPONCE");
                         ListResponce listResponce = (ListResponce) command;
                         ArrayList<String> names = listResponce.getServerFileList();
                         refreshServerView(names);
                     }
 
-                    if(command.getCommandList().equals(CommandName.PATH_RESPONCE)){
+                    if(command.getCommandName().equals(CommandName.PATH_RESPONCE)){
+                        log.info("WORK PATH RESPONCE");
                         PathResponce pathResponce = (PathResponce) command;
                         String path = pathResponce.getPath().substring("server/serverFiles/".length());
                         System.out.println(path);
@@ -127,7 +134,8 @@ public class Controller implements Initializable {
                         });
                     }
 
-                    if(command.getCommandList().equals(CommandName.FILE_MESSAGE)) {
+                    if(command.getCommandName().equals(CommandName.FILE_MESSAGE)) {
+                        log.info("WORK FILE MESSAGE");
                         FileMessage fileMessage = (FileMessage) command;
                         Files.write(currentClientDir.resolve(fileMessage.getFilename()), fileMessage.getData());
                         refreshClientView();
@@ -144,7 +152,7 @@ public class Controller implements Initializable {
         Platform.runLater(() -> {
             stage = (Stage) serverPath.getScene().getWindow();
             stage.setOnCloseRequest(event -> {
-                System.out.println("bye");
+                log.info("EXIT");
                 if (Network.getSocket() != null && !Network.getSocket().isClosed()) {
                     try {
                         Network.getOut().writeObject(new ExitCommand());
@@ -173,7 +181,7 @@ public class Controller implements Initializable {
             }
         });
 
-        serverFileList.setOnMouseClicked(event -> {
+        serverFileList.setOnMouseClicked(event -> { ;
             if(event.getClickCount() == 2){
                 String item = serverFileList.getSelectionModel().getSelectedItem();
                 try {
@@ -187,7 +195,8 @@ public class Controller implements Initializable {
 
     }
 
-    private void setAuthorized(boolean isAuthorized) {
+    public void setAuthorized(boolean isAuthorized) {
+        log.info("Controller.setAuthorized");
             if (!isAuthorized) {
                 authentication.setVisible(true);
                 authentication.setManaged(true);
@@ -205,21 +214,25 @@ public class Controller implements Initializable {
     }
 
     public void tryToAuth() {
-
-        Network.sendMsg(new AuthRequest(loginField.getText().trim(), passwordField.getText().trim()));
+        log.info("Controller.tryToAuth");
+        Network.writeObject(new AuthRequest(loginField.getText().trim(), passwordField.getText().trim()));
         loginField.clear();
         passwordField.clear();
 
     }
 
     public void takeOutFromServer(ActionEvent actionEvent) {
-        Network.sendMsg(new FileRequest(serverFileList.getSelectionModel().getSelectedItem()));
+        log.info("Controller.takeOutFromServer");
+        Network.writeObject(new FileRequest(serverFileList.getSelectionModel().getSelectedItem()));
     }
 
     @SneakyThrows
     public void sendOnServer(ActionEvent actionEvent) {
+        log.info("Controller.senfOnServer");
         String fileName = clientFileList.getSelectionModel().getSelectedItem();
         FileMessage fileMessage = new FileMessage(currentClientDir.resolve(fileName));
+        System.out.println(fileMessage.getSize());
+        System.out.println(fileMessage.getFilename());
         Network.getOut().writeObject(fileMessage);
         Network.getOut().flush();
         Network.getOut().writeObject(new ListRequest());
@@ -227,6 +240,7 @@ public class Controller implements Initializable {
     }
 
     public void removeFile(ActionEvent actionEvent) {
+        log.info("Controller.removeFile");
         Button currntButton = (Button) actionEvent.getSource();
 
         if (removeClientFile.equals(currntButton)) {
@@ -238,11 +252,12 @@ public class Controller implements Initializable {
             }
         }
         if (removeServerFile.equals(currntButton)) {
-            Network.sendMsg(new DeleteRequest(serverFileList.getSelectionModel().getSelectedItem()));
+            Network.writeObject(new DeleteRequest(serverFileList.getSelectionModel().getSelectedItem()));
         }
     }
 
-    private void refreshClientView() throws IOException {
+    public void refreshClientView() throws IOException {
+        log.info("Controller.refreshClientView");
         clentPath.setText(currentClientDir.toString());
         List<String> files = Files.list(currentClientDir)
                 .map(f->f.getFileName().toString())
@@ -254,6 +269,7 @@ public class Controller implements Initializable {
     }
 
     private void refreshServerView(ArrayList<String> filesList) {
+        log.info("Controller.refredhServerView");
         Platform.runLater(() -> {
             serverFileList.getItems().clear();
             serverFileList.getItems().addAll(filesList);
@@ -262,6 +278,7 @@ public class Controller implements Initializable {
 
     @SneakyThrows
     public void pathOutClientPressing(ActionEvent actionEvent) {
+        log.info("Controller.pathOutClientPressing");
         if(currentClientDir.getParent() != null){
             currentClientDir = currentClientDir.getParent();
             refreshClientView();
@@ -270,10 +287,12 @@ public class Controller implements Initializable {
     }
 
     public void pathOutServerPressing(ActionEvent actionEvent) {
-        Network.sendMsg(new PathUpRequest());
+        log.info("Controller.pathOutServerPressing");
+        Network.writeObject(new PathUpRequest());
     }
 
     public void clickRegButton(ActionEvent actionEvent) {
+        log.info("Controller.clickRegButton");
         if (regStage == null) {
             createRegWindow();
         }
@@ -281,6 +300,7 @@ public class Controller implements Initializable {
     }
 
     private void createRegWindow() {
+        log.info("Controller.createRegWidow");
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("reg.fxml"));
             Parent root = fxmlLoader.load();
@@ -299,11 +319,12 @@ public class Controller implements Initializable {
         }
     }
 
-    public void tryToReg(String login, String password, String nickname) {
-//        if (Network.getSocket() == null || Network.getSocket().isClosed()) {
-//            Network.start();
-//        }
+    public void tryToReg(String login, String password) {
+        log.info("Controller.tryToReg");
+        if (Network.getSocket() == null || Network.getSocket().isClosed()) {
+            Network.start();
+        }
 
-        Network.sendMsg(new RegRequest(login, password, nickname));
+        Network.writeObject(new RegRequest(login, password));
     }
 }

@@ -8,7 +8,6 @@
 
     <TextField fx:id="loginField" promptText="login" />
     <PasswordField fx:id="passwordField" promptText="password" />
-    <TextField fx:id="nicknameField" onAction="#tryToReg" promptText="nickname" />
 
     <TextArea fx:id="textArea" editable="false" VBox.vgrow="ALWAYS" />
 

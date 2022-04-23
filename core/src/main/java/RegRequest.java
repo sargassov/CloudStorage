@@ -2,12 +2,10 @@ public class RegRequest extends Command{
 
     private String login;
     private String password;
-    private String nickName;
 
-    public RegRequest(String login, String password, String nickName){
+    public RegRequest(String login, String password){
         this.login = login;
         this.password = password;
-        this.nickName = nickName;
     }
 
     public String getPassword() {
@@ -18,12 +16,8 @@ public class RegRequest extends Command{
         return login;
     }
 
-    public String getNickName() {
-        return nickName;
-    }
-
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.REG_REQUEST;
     }
 }

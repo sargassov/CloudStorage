@@ -1,9 +1,12 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.ReferenceCountUtil;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class AuthHandler extends SimpleChannelInboundHandler<Command> {
     private boolean authPassed = false;
+    private boolean regPassed = false;
     private DBStorage dbStorage;
 
     public AuthHandler(DBStorage dbStorage){
@@ -19,34 +22,31 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
                 return;
             }
 
-            System.out.println(command.getCommandList());
+            log.info(command.getCommandName().name());
 
-            if(command.getCommandList().equals(CommandName.AUTH_REQUEST)){
+            if(command.getCommandName().equals(CommandName.AUTH_REQUEST)){ //запрос на аутентификацию
                 AuthRequest authRequest = (AuthRequest) command;
-                String userId = DBStorage.getNicknameByLoginAndPassword(authRequest.getLogin().trim(),
+                String userId = DBStorage.userIdVerify(authRequest.getLogin().trim(),
                         authRequest.getPassword().trim());
 
                 if(userId != null){
-                    System.out.println("have");
+                    log.info("Auth was passed by " + userId);
                     authPassed = true;
                     ctx.pipeline().addLast(new ApplicationHandler(userId));
                     ctx.writeAndFlush(new AuthPassed());
                 }
                 else {
-                    System.out.println("NULL");
+                    log.error("auth failed");
                     ctx.writeAndFlush(new AuthFailed());
                 }
             }
 
-            if (command.getCommandList().equals(CommandName.REG_REQUEST)) {
+            if (command.getCommandName().equals(CommandName.REG_REQUEST)) {
                 RegRequest regRequest = (RegRequest) command;
-                dbStorage.setAuthHandler(this);
 
-                System.out.println("fwsredthfgyujtdrhgeswfatghj");
-                authPassed = dbStorage.registration(regRequest.getLogin(), regRequest.getPassword(),
-                        regRequest.getNickName());
-                if (authPassed) {
-                    ctx.pipeline().addLast(new ApplicationHandler(regRequest.getNickName()));
+                regPassed = dbStorage.registration(regRequest.getLogin(), regRequest.getPassword());
+                if (regPassed) {
+                    ctx.pipeline().addLast(new ApplicationHandler(regRequest.getLogin()));
                     ctx.writeAndFlush(new RegPassed());
                 } else {
                     ctx.writeAndFlush(new RegFailed());
@@ -58,12 +58,8 @@ public class AuthHandler extends SimpleChannelInboundHandler<Command> {
         }
     }
 
-    public void setAuthPassed(boolean authPassed) {
-        this.authPassed = authPassed;
-    }
-
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }

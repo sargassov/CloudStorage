@@ -1,7 +1,7 @@
 public class AuthPassed extends Command{
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.AUTH_PASSED;
     }
 }

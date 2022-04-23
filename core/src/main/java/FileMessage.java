@@ -28,7 +28,7 @@ public class FileMessage extends Command {
     }
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.FILE_MESSAGE;
     }
 }

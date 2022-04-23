@@ -1,6 +1,6 @@
 public class PathRequest extends Command{
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.PATH_REQUEST;
     }
 }

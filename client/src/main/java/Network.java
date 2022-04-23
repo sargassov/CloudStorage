@@ -51,7 +51,7 @@ public class Network {
         }
     }
 
-    static boolean sendMsg(Command msg) {
+    static boolean writeObject(Command msg) {
         try {
             out.writeObject(msg);
             return true;

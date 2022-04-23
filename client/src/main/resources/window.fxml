@@ -79,10 +79,10 @@
 
         <VBox fx:id="buttonSide" alignment="CENTER" prefHeight="100" prefWidth="100.0">
     <Label alignment="TOP_CENTER"  minHeight="30.0" prefHeight="30.0" prefWidth="173.0" />
-            <Button onAction="#sendOnServer" text="Send" prefHeight="112" prefWidth="100.0"/>
+            <Button onAction="#sendOnServer" text="Send on Server" prefHeight="112" prefWidth="100.0"/>
             <Button prefHeight="112" prefWidth="100.0" visible="false"/>
             <Button prefHeight="112" prefWidth="100.0" visible="false"/>
-            <Button onAction="#takeOutFromServer" text="Download" prefHeight="112" prefWidth="100.0" />
+            <Button onAction="#takeOutFromServer" text="Send on PC" prefHeight="112" prefWidth="100.0" />
 
 
 

@@ -2,7 +2,7 @@ public class ListRequest extends Command{
 
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.LIST_REQUEST;
     }
 }

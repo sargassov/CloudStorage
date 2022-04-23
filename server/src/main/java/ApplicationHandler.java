@@ -1,11 +1,13 @@
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.log4j.Log4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Log4j
 public class ApplicationHandler extends SimpleChannelInboundHandler<Command> {
 
     private String userId;
@@ -34,30 +36,31 @@ public class ApplicationHandler extends SimpleChannelInboundHandler<Command> {
     protected void channelRead0(ChannelHandlerContext ctx, Command command) throws Exception {
 
             if (command == null) { return; }
+//            channelActive(ctx);
 
-            if (command.getCommandList().equals(CommandName.FILE_REQUEST)) {
+            if (command.getCommandName().equals(CommandName.FILE_REQUEST)) {
                 FileRequest fileRequest = (FileRequest) command;
                 FileMessage fileMessage = new FileMessage(currentPath.resolve(fileRequest.getFileName()));
                 ctx.writeAndFlush(fileMessage);
             }
 
-            if (command.getCommandList().equals(CommandName.DELETE_REQUEST)) {
+            if (command.getCommandName().equals(CommandName.DELETE_REQUEST)) {
                 DeleteRequest deleteRequest = (DeleteRequest) command;
                 Files.delete(Paths.get(currentPath + "/" + deleteRequest.getFilename()));
                 ctx.writeAndFlush(new ListResponce(currentPath));
             }
 
-            if (command.getCommandList().equals(CommandName.FILE_MESSAGE)) {
+            if (command.getCommandName().equals(CommandName.FILE_MESSAGE)) {
                 FileMessage fileMessage = (FileMessage) command;
                 Files.write(currentPath.resolve(fileMessage.getFilename()), fileMessage.getData());
                 ctx.writeAndFlush(new ListResponce(currentPath));
             }
 
-            if(command.getCommandList().equals(CommandName.LIST_REQUEST)){
+            if(command.getCommandName().equals(CommandName.LIST_REQUEST)){
                 ctx.writeAndFlush(new ListResponce(currentPath));
             }
 
-            if(command.getCommandList().equals(CommandName.PATH_UP_REQUEST)){
+            if(command.getCommandName().equals(CommandName.PATH_UP_REQUEST)){
                 if(currentPath.toString().endsWith(userId)){
                     return;
                 }
@@ -67,12 +70,12 @@ public class ApplicationHandler extends SimpleChannelInboundHandler<Command> {
                 ctx.writeAndFlush(new ListResponce(currentPath));
             }
 
-            if(command.getCommandList().equals(CommandName.PATH_UP_REQUEST)){
-                ctx.writeAndFlush(new PathResponce(currentPath.toString()));
-                ctx.writeAndFlush(new ListResponce(currentPath));
-            }
+//            if(command.getCommandName().equals(CommandName.PATH_UP_REQUEST)){
+//                ctx.writeAndFlush(new PathResponce(currentPath.toString()));
+//                ctx.writeAndFlush(new ListResponce(currentPath));
+//            }
 
-            if(command.getCommandList().equals(CommandName.PATH_IN_REQUEST)){
+            if(command.getCommandName().equals(CommandName.PATH_IN_REQUEST)){
                 PathInRequest pathInRequest = (PathInRequest) command;
                 Path newPath = currentPath.resolve(pathInRequest.getDirectory());
 
@@ -85,14 +88,14 @@ public class ApplicationHandler extends SimpleChannelInboundHandler<Command> {
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Client " + userId + " disconnected!");
+    public void channelInactive(ChannelHandlerContext ctx){
+        log.info("Client " + userId + " disconnected!");
         ctx.writeAndFlush(new ExitCommand());
     }
 }

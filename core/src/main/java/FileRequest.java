@@ -11,7 +11,7 @@ public class FileRequest extends Command {
     }
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.FILE_REQUEST;
     }
 }

@@ -1,6 +1,6 @@
 public class ExitCommand extends Command{
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.EXIT_COMMAND;
     }
 }
