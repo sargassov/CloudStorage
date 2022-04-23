@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DBStorage{
+public class DBStorage{ //хранилище данных на сервере.
 
     private static Connection connection;
     private static Statement statement;
@@ -20,7 +20,7 @@ public class DBStorage{
 
     @SneakyThrows
     public static String userIdVerify(String login, String password) throws SQLException {
-        resultSet = selectAllFromUsers();
+        resultSet = selectAllFromUsers(); //проверка пользователя на наличие в базе
 
         while(resultSet.next()){
             if (resultSet.getString("login").equals(login) &&
@@ -31,7 +31,7 @@ public class DBStorage{
 
         return null;
     }
-
+// добавление нового пользователя, проверка на отсутствие другого пользователя с таким же логином
     public boolean registration(String login, String password) throws SQLException {
         resultSet = selectAllFromUsers();
         while(resultSet.next()){
@@ -46,12 +46,14 @@ public class DBStorage{
         connection = DriverManager.getConnection("jdbc:sqlite:Cloud_storage_Database.db:authdb");
     }
 
+    //создание базы данных.
     private static void createdb() throws SQLException {
         String createTableExecute = "CREATE TABLE if not exists 'users'('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text);";
         statement = connection.createStatement();
         statement.execute(createTableExecute);
     }
 
+    //Предзагрузка пользователей по умолчанию
     private static void writedb() {
         List<String> createUserCommands = new ArrayList<>(Arrays.asList(
                 "INSERT INTO 'users' ('login', 'password') VALUES('qwe', 'qwe')",
@@ -73,6 +75,7 @@ public class DBStorage{
         return statement.executeQuery("SELECT * FROM users");
     }
 
+    //закрытие базы данных
     public static void closedb() throws SQLException {
         resultSet.close();
         statement.close();

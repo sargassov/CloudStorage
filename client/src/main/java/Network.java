@@ -4,7 +4,7 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Network {
+public class Network { //свод статических методов, отвечающих за взаимодействие с сервером
     private static Socket socket;
     private static ObjectEncoderOutputStream out;
     private static ObjectDecoderInputStream in;
@@ -18,7 +18,7 @@ public class Network {
         return out;
     }
 
-    static void start() {
+    static void start() { //инициация входящего и исходящего каналов
         try {
             socket = new Socket("localhost", 8189);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
@@ -33,7 +33,7 @@ public class Network {
         return socket;
     }
 
-    static void stop() {
+    static void stop() { //закрытие сокета и каналов
         try {
             out.close();
         } catch (IOException e) {
@@ -51,17 +51,15 @@ public class Network {
         }
     }
 
-    static boolean writeObject(Command msg) {
+    static void writeObject(Command msg) { //запись объекта на сервер
         try {
             out.writeObject(msg);
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    static Command readObject() throws ClassNotFoundException, IOException {
+    static Command readObject() throws ClassNotFoundException, IOException {//чтение с сервера
         Object obj = in.readObject();
         return (Command) obj;
     }
