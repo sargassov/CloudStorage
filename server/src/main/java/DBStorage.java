@@ -1,29 +1,16 @@
+import lombok.SneakyThrows;
+
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DBStorage{
 
-    public static Connection connection;
-    public static Statement statement;
-    public static ResultSet resultSet;
-    private static final String CREATE_USER_QWE = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('qwe', 'qwe', 'qwe')";
-    private static final String CREATE_USER_ASD = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('asd', 'asd', 'asd')";
-    private static final String CREATE_USER_ZXC = "INSERT INTO 'users' ('nickname', 'login', 'password') VALUES('zxc', 'zxc', 'zxc')";
-    private static final String CREATE_TABLE_EXECUTE = "CREATE TABLE if not exists 'users'" +
-            "('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'nickname' text, 'login' text, 'password' text);";
-    private AuthHandler authHandler;
+    private static Connection connection;
+    private static Statement statement;
+    private static ResultSet resultSet;
 
-    private class UserData {
-        String login;
-        String password;
-        String nickname;
-
-        public UserData(String login, String password, String nickname) {
-            this.login = login;
-            this.password = password;
-            this.nickname = nickname;
-        }
-    }
 
     public DBStorage() throws SQLException, ClassNotFoundException {
         setConnection();
@@ -31,56 +18,64 @@ public class DBStorage{
         writedb();
     }
 
+    @SneakyThrows
+    public static String userIdVerify(String login, String password) throws SQLException {
+        resultSet = selectAllFromUsers();
 
-    public static String getNicknameByLoginAndPassword(String login, String password) throws SQLException {
-        resultSet = statement.executeQuery("SELECT * FROM users");
-        String dbNickname;
         while(resultSet.next()){
             if (resultSet.getString("login").equals(login) &&
                     resultSet.getString("password").equals(password)) {
-                return dbNickname = resultSet.getString("nickname");
+                return resultSet.getString("login");
             }
         }
 
         return null;
     }
 
-    public boolean registration(String login, String password, String nickname) throws SQLException {
-        resultSet = statement.executeQuery("SELECT * FROM users");
+    public boolean registration(String login, String password) throws SQLException {
+        resultSet = selectAllFromUsers();
         while(resultSet.next()){
-            if (resultSet.getString("login").equals(login) ||
-                    resultSet.getString("nickname").equals(nickname)) { return false;
-            }
-            statement.execute("INSERT INTO 'users' ('nickname', 'login', 'password') VALUES ('" + nickname + "', '"
-                    + login + "', '" + password + "')");
+            if (resultSet.getString("login").equals(login)) { return false; }
         }
-
+        statement.execute("INSERT INTO 'users' ('login', 'password') VALUES ('" + login + "', '" + password + "')");
         return true;
     }
 
-    public static void setConnection() throws ClassNotFoundException, SQLException {
+    private static void setConnection() throws ClassNotFoundException, SQLException {
         Class.forName("org.sqlite.JDBC");
         connection = DriverManager.getConnection("jdbc:sqlite:Cloud_storage_Database.db:authdb");
     }
 
-    public static void createdb() throws SQLException {
+    private static void createdb() throws SQLException {
+        String createTableExecute = "CREATE TABLE if not exists 'users'('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'login' text, 'password' text);";
         statement = connection.createStatement();
-        statement.execute(CREATE_TABLE_EXECUTE);
+        statement.execute(createTableExecute);
     }
 
-    public static void writedb() throws SQLException {
-        statement.execute(CREATE_USER_QWE);
-        statement.execute(CREATE_USER_ASD);
-        statement.execute(CREATE_USER_ZXC);
+    private static void writedb() {
+        List<String> createUserCommands = new ArrayList<>(Arrays.asList(
+                "INSERT INTO 'users' ('login', 'password') VALUES('qwe', 'qwe')",
+                "INSERT INTO 'users' ('login', 'password') VALUES('asd', 'asd')",
+                "INSERT INTO 'users' ('login', 'password') VALUES('zxc', 'zxc')"
+        ));
+
+        createUserCommands.forEach(s -> {
+            try {
+                statement.execute(s);
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+    }
+
+    @SneakyThrows
+    private static ResultSet selectAllFromUsers(){
+        return statement.executeQuery("SELECT * FROM users");
     }
 
     public static void closedb() throws SQLException {
         resultSet.close();
         statement.close();
         connection.close();
-    }
-
-    public void setAuthHandler(AuthHandler authHandler) {
-        this.authHandler = authHandler;
     }
 }

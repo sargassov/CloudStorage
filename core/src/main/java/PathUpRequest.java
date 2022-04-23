@@ -1,7 +1,7 @@
 public class PathUpRequest extends Command{
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.PATH_UP_REQUEST;
     }
 }

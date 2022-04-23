@@ -11,7 +11,7 @@ public class PathResponce extends Command{
     }
 
     @Override
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return CommandName.PATH_RESPONCE;
     }
 }

@@ -18,19 +18,18 @@ public class RegController {
     public void tryToReg(ActionEvent actionEvent) {
         String login = loginField.getText().trim();
         String password = passwordField.getText().trim();
-        String nickname = loginField.getText().trim();
 
-        if (login.length() * password.length() * nickname.length() == 0) {
+        if (login.length() * password.length() == 0) {
             textArea.appendText("Your Entry Incorrectly\n");
             return;
         }
 
-        if (login.contains(" ") || password.contains(" ") || nickname.contains(" ")) {
+        if (login.contains(" ") || password.contains(" ")) {
             textArea.appendText("Your Entry Incorrectly\n");
             return;
         }
 
-        controller.tryToReg(login, password, nickname);
+        controller.tryToReg(login, password);
     }
 
     public void resultTryToReg(boolean flag) {
@@ -38,12 +37,10 @@ public class RegController {
             textArea.appendText("REGISTRATION PASSED\n");
             loginField.clear();
             passwordField.clear();
-            nicknameField.clear();
         } else {
-            textArea.appendText("REGISTRATION FAILED\n");
+            textArea.appendText("REGISTRATION FAILED LOGIN IS ALREADY USED\n");
             loginField.clear();
             passwordField.clear();
-            nicknameField.clear();
         }
     }
 

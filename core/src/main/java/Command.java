@@ -4,8 +4,7 @@ public class Command implements Serializable {
 
     private CommandName commandName;
 
-    public CommandName getCommandList() {
+    public CommandName getCommandName() {
         return commandName;
     }
-
 }

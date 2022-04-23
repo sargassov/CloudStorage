@@ -42,7 +42,6 @@ public class Server {
             ChannelFuture future = bootstrap.bind(8189).sync();
 
             log.debug("Server started");
-            System.out.println("Server started");
 
             dbStorage = new DBStorage();
             future.channel().closeFuture().sync();
